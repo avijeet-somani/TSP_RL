@@ -10,7 +10,7 @@ from modules import Attention, GraphEmbedding
 
 
 
-class BasicModel(nn.Module) : 
+class LSTMTSP(nn.Module) : 
     def __init__(self, embedding_size,
             hidden_size,
             seq_len,
@@ -18,7 +18,7 @@ class BasicModel(nn.Module) :
             tanh_exploration,
             start_index
             ):
-        super(BasicModel, self).__init__()  
+        super(LSTMTSP, self).__init__()  
         self.n_glimpses = 1
         embedding_size = 2
         self.hidden_size = 5
@@ -82,11 +82,7 @@ class BasicModel(nn.Module) :
             mask[[i for i in range(batch_size)], chosen] = True
             log_probs = cat.log_prob(chosen)
             decoder_input = embedded[torch.arange(batch_size), chosen, :] #chose the embeddings for the chosen index
-            '''
-            aa = chosen[:, None, None].repeat(1, 1, self.hidden_size)
-            print('modified chosen' ,  aa.shape)
-            decoder_input = embedded.gather(1, aa).squeeze(1)
-            '''
+            
             #print('decoder_input : ', decoder_input.shape)
             prev_chosen_logprobs.append(log_probs)
             preb_chosen_indices.append(chosen)

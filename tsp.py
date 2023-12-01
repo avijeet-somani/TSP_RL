@@ -7,7 +7,7 @@ import torch.nn as nn
 import math
 from modules import Attention, GraphEmbedding
 from torch.distributions import Categorical
-from solver import Solver, solver_TSP
+from solver import Solver, solver_LSTM
 from tqdm import tqdm
 from torch.utils.tensorboard import SummaryWriter
 import optuna
@@ -25,7 +25,7 @@ def parse_arguments() :
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--model_type", type=str, default="rnn")
-    parser.add_argument("--seq_len", type=int, default=30)
+    parser.add_argument("--seq_len", type=int, default=100)
     parser.add_argument("--num_epochs", type=int, default=100)
     parser.add_argument("--num_tr_dataset", type=int, default=10000)
     parser.add_argument("--num_te_dataset", type=int, default=200)
@@ -181,7 +181,7 @@ def create_datasets(args) :
 def TSP_RL(args) : 
     train_dataset, test_dataset = create_datasets(args)
     
-    model = solver_TSP(
+    model = solver_LSTM(
             args.embedding_size,
             args.hidden_size,
             args.seq_len,
@@ -256,7 +256,7 @@ class HPOptimizer :
         #embedding_size = trial.suggest_int("embedding_size", 32, 64, step=32)
         hidden_size = trial.suggest_categorical("hidden_size", [32, 64, 128])
 
-        model = solver_TSP(embedding_size,hidden_size, self.args.seq_len, 2, 10)
+        model = solver_LSTM(embedding_size,hidden_size, self.args.seq_len, 2, 10)
         
         return model
     
@@ -306,6 +306,7 @@ class ModelVsHeuristics :
 
 
     def compare(self, model, dataset=None, print_graph=False) : 
+        print('compare')
         dataset = self.dataset if dataset is None else dataset
         heuristic_distance, heuristic_tour_list = self.compute_heuristic_distance(dataset)
         R_avg, model_distance, model_tour_list = batch_test(dataset, model)
@@ -338,7 +339,7 @@ def main() :
     os.chdir(new_directory_name)
     if args.train : 
         hp_opt = HPOptimizer(args)    
-        hp_opt.kickstart()
+        hp_opt.kickstart() 
     elif args.heuristic_compare : 
         print('model path : ', args.model_path)
         assert args.model_path != None
@@ -355,12 +356,8 @@ def main() :
         model_vs_heuristics.compare(model, dataset, args.print_graph) 
         
     elif args.blank_run : 
-        assert args.model_path != None
-        model = torch.load(args.model_path)
-        dataset = tsp_generator.TSPDataset(20, 5)
-        R_avg, model_distance, tour_list = batch_test(dataset, model)
-        for tour in tour_list : 
-            print(model_distance, tour)
+        TSP_RL(args) 
+        
 
     
 

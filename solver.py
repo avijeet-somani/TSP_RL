@@ -9,10 +9,7 @@ import torch.optim as optim
 from torch.autograd import Variable
 from torch.distributions import Categorical
 from torch.utils.data import DataLoader, Dataset
-
-from rl_with_attention import AttentionTSP
-from rl_with_rnn import RNNTSP
-from my_model import BasicModel
+from tsp_module import LSTMTSP
 
 class Solver(nn.Module):
     def __init__(self):
@@ -59,48 +56,20 @@ class Solver(nn.Module):
         return R, probs, actions
 
 
-class solver_RNN(Solver):
-    def __init__(self,
-            embedding_size,
-            hidden_size,
-            seq_len,
-            n_glimpses,
-            tanh_exploration):
-        super(solver_RNN, self).__init__()
 
-        self.actor = RNNTSP(embedding_size,
-                                hidden_size,
-                                seq_len,
-                                n_glimpses,
-                                tanh_exploration)
-
-class solver_Attention(Solver):
-    def __init__(self,
-            embedding_size,
-            hidden_size,
-            seq_len,
-            n_glimpses,
-            tanh_exploration):
-        super(solver_Attention, self).__init__()
-
-        self.actor = AttentionTSP(embedding_size,
-                                  hidden_size,
-                                  seq_len)
-
-
-class solver_TSP(Solver):
+class solver_LSTM(Solver):
     def __init__(self, embedding_size,
             hidden_size,
             seq_len,
             n_glimpses,
             tanh_exploration,
             start_index=0 ):
-        super(solver_TSP, self).__init__()
+        super(solver_LSTM, self).__init__()
         
         #start_index = None : just find the best route connecting all the nodes
         #start_index = index : start with index , end with index
 
-        self.actor = BasicModel(embedding_size,
+        self.actor = LSTMTSP(embedding_size,
                                 hidden_size,
                                 seq_len,
                                 n_glimpses,
