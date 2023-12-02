@@ -23,14 +23,12 @@ import networkx as nx
 
 def parse_arguments() : 
     parser = argparse.ArgumentParser()
-
-    parser.add_argument("--model_type", type=str, default="rnn")
-    parser.add_argument("--seq_len", type=int, default=100)
+    parser.add_argument("--seq_len", type=int, default=30)
     parser.add_argument("--num_epochs", type=int, default=100)
     parser.add_argument("--num_tr_dataset", type=int, default=10000)
     parser.add_argument("--num_te_dataset", type=int, default=200)
-    parser.add_argument("--embedding_size", type=int, default=128)
-    parser.add_argument("--hidden_size", type=int, default=128)
+    parser.add_argument("--embedding_size", type=int, default=2)
+    parser.add_argument("--hidden_size", type=int, default=5)
     parser.add_argument("--batch_size", type=int, default=64)
     parser.add_argument("--grad_clip", type=float, default=1.5)
     parser.add_argument("--use_cuda", type=bool, default=False)
@@ -252,9 +250,10 @@ class HPOptimizer :
 
     def define_model(self, trial) : 
         #model hyperparams : embedding_size, hidden_size
-        embedding_size = trial.suggest_categorical("embedding_size", [32, 64,128]) 
-        #embedding_size = trial.suggest_int("embedding_size", 32, 64, step=32)
-        hidden_size = trial.suggest_categorical("hidden_size", [32, 64, 128])
+        #embedding_size = trial.suggest_categorical("embedding_size", [32, 64,128]) 
+        #hidden_size = trial.suggest_categorical("hidden_size", [32, 64, 128])
+        embedding_size = trial.suggest_categorical("embedding_size", [2, 4, 8]) 
+        hidden_size = trial.suggest_categorical("hidden_size", [5, 10, 15])
 
         model = solver_LSTM(embedding_size,hidden_size, self.args.seq_len, 2, 10)
         

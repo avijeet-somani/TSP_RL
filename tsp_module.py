@@ -20,8 +20,8 @@ class LSTMTSP(nn.Module) :
             ):
         super(LSTMTSP, self).__init__()  
         self.n_glimpses = 1
-        embedding_size = 2
-        self.hidden_size = 5
+        embedding_size = embedding_size
+        self.hidden_size = hidden_size
         self.start_index = start_index
         self.embedding = GraphEmbedding(2, embedding_size)
         self.decoder_start_input = nn.Parameter(torch.FloatTensor(embedding_size))
