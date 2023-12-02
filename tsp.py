@@ -16,6 +16,7 @@ import optuna.visualization as vis
 import matplotlib.pyplot as plt
 import tsp_heuristic
 import networkx as nx
+from torchviz import make_dot
 
 
 
@@ -41,6 +42,7 @@ def parse_arguments() :
     parser.add_argument("--heuristic_compare", type=bool, default=False) 
     parser.add_argument("--blank_run", type=bool, default=False)  
     parser.add_argument("--print_graph", type=bool, default=False)  
+    parser.add_argument("--print_model", type=bool, default=False)  
     args = parser.parse_args()
     return args
 
@@ -353,6 +355,13 @@ def main() :
         model = torch.load(args.model_path)
         model_vs_heuristics = ModelVsHeuristics(args)
         model_vs_heuristics.compare(model, dataset, args.print_graph) 
+    elif args.print_model : 
+        assert args.model_path != None
+        assert os.path.exists(args.model_path) 
+        model = torch.load(args.model_path)
+        dataset = tsp_generator.TSPDataset(args.seq_len, 1)
+        track_data = batch_test(dataset, model)
+        make_dot(track_data, params=dict(list(model.named_parameters()))).render("rnn_torchviz", format="png")   
         
     elif args.blank_run : 
         TSP_RL(args) 
