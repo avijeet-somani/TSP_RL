@@ -29,7 +29,7 @@ class LSTMTSP(nn.Module) :
         #print('decoder input dummy data: ', self.decoder_start_input.data)
         self.encoder = nn.LSTM(embedding_size, self.hidden_size, batch_first=True)
         self.decoder = nn.LSTM(embedding_size, self.hidden_size, batch_first=True)
-        self.glimpse = Attention(self.hidden_size)
+        #self.glimpse = Attention(self.hidden_size)
         self.pointer = Attention(self.hidden_size)
 
     
@@ -59,14 +59,7 @@ class LSTMTSP(nn.Module) :
             _, (hidden, context) = self.decoder(decoder_input.unsqueeze(1), (hidden, context))
         
             query = hidden.squeeze(0)
-            '''
-            #glimpses aggrgates the contribution of different parts of input sequence . 
-            for itr in range(self.n_glimpses):
-                ref, logits = self.glimpse(query, encoder_outputs)
-                _mask = mask.clone()
-                logits[_mask] = -100000.0
-                query = torch.matmul(ref.transpose(-1, -2), torch.softmax(logits, dim=-1).unsqueeze(-1)).squeeze(-1)
-            '''
+           
 
             #query attends to the encoder_outputs
             _, logits = self.pointer(query, encoder_outputs)

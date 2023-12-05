@@ -10,6 +10,7 @@ from torch.autograd import Variable
 from torch.distributions import Categorical
 from torch.utils.data import DataLoader, Dataset
 from tsp_module import LSTMTSP
+from tsp_module_attention import AttentionTSP
 
 class Solver(nn.Module):
     def __init__(self):
@@ -77,3 +78,17 @@ class solver_LSTM(Solver):
                                 start_index
                                 )
         
+
+
+class solver_Attention(Solver):
+    def __init__(self,
+            embedding_size,
+            hidden_size,
+            seq_len,
+            n_glimpses,
+            tanh_exploration):
+        super(solver_Attention, self).__init__()
+
+        self.actor = AttentionTSP(embedding_size,
+                                  hidden_size,
+                                  seq_len)
